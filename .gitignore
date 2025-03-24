@@ -172,3 +172,8 @@ cython_debug/
 
 # PyPI configuration file
 .pypirc
+
+#frontend
+node_modules
+code/src/frontend/package-lock.json
+.vscode/settings.json
