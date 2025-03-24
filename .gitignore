@@ -172,3 +172,8 @@ cython_debug/
 
 # PyPI configuration file
 .pypirc
+
+#virtual env
+code/src/Backend/myenv
+code/src/Backend/rules.db
+code/src/Backend/uploads
