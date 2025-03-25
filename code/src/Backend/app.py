@@ -35,12 +35,18 @@ def upload_files():
     success, message = DocumentProcessor().process_uploaded_files(saved_paths)
     return jsonify({"success": success, "message": message})
 
+@app.route('/api/upload/get', methods=['GET'])
+def send_uploads():
+    return DocumentProcessor().getUploads()
 
 @app.route('/api/extract-rules', methods=['POST'])
 def extract_rules_api():
     data = request.json
     query = data.get('query', '')
-    success, result = DocumentProcessor().extract_rules(query)
+    index = data.get('index', '')
+    fileName = data.get('fileName', '')
+
+    success, result = DocumentProcessor().extract_rules(index, fileName, query)
     if success:
         return jsonify({"rules": result})
     else:

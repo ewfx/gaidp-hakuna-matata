@@ -4,7 +4,7 @@ import os
 
 def init_db():
     print("init db called")
-    for db in ["rules.db", "flagged_items.db"]:
+    for db in ["rules.db", "flagged_items.db", "uploads.db"]:
         if not os.path.exists(db):
             open(db, 'w').close()
 
@@ -36,6 +36,15 @@ def init_db():
         remediation TEXT,
         created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
         FOREIGN KEY(rule_id) REFERENCES rules(id)
+    )
+    """)
+    conn.close()
+    conn = sqlite3.connect("uploads.db")
+    conn.execute("""
+    CREATE TABLE IF NOT EXISTS uploads (
+        id INTEGER PRIMARY KEY AUTOINCREMENT,
+        fileName TEXT,
+        index TEXT,
     )
     """)
     conn.close()

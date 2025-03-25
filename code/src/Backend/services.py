@@ -39,15 +39,11 @@ Settings.chunk_overlap = 20
 
 class DocumentProcessor:
     def __init__(self):
-        self.index = Lock()
-        self.file_name = Lock()
         print("__init__ called")
 
-    def process_uploaded_files(self, filepaths: List[str]):
+    def process_uploaded_files(filepaths: List[str]):
         print("process_uploaded_files called")
 
-        self.index = None
-        self.file_name = None
         try:
 
             if os.path.exists(CONFIG["documents_dir"]):
@@ -55,20 +51,35 @@ class DocumentProcessor:
                     os.remove(os.path.join(CONFIG["documents_dir"], f))
             else:
                 os.makedirs(CONFIG["documents_dir"])
-
+            index = None
+            fileName= None
             # 2. Copy new files to working directory
             for filepath in filepaths:
                 if os.path.isfile(filepath):
-                    self.file_name = os.path.basename(filepath)
+                    fileName = os.path.basename(filepath)
                     shutil.copy2(filepath, CONFIG["documents_dir"])
                 else:
                     print(f"Warning: File not found - {filepath}")
             documents = SimpleDirectoryReader(
                 CONFIG["documents_dir"]).load_data()
-            self.index = VectorStoreIndex.from_documents(
+            index = VectorStoreIndex.from_documents(
                 documents,
                 show_progress=True
             )
+            with db_lock:
+                conn = sqlite3.connect(CONFIG["uploads"])
+                cursor = conn.cursor()
+                try:
+                    cursor.execute(
+                        "INSERT INTO uploads (fileName, index,) VALUES (?, ?)",
+                        (str(fileName),
+                        str(index))
+                    )
+                except sqlite3.Error as e:
+                    print(f"Database error: {e}")
+                conn.commit()
+                conn.close()
+
 
             print(f"Created index with {len(documents)} documents")
             return True, {"processed_files": [os.path.basename(p) for p in filepaths]}
@@ -76,13 +87,24 @@ class DocumentProcessor:
             print(f"Error processing files: {str(e)}")
             return False, f"Processing failed: {str(e)}"
 
-    def extract_rules(self, query: str):
-        print(self.index)
-        print(self.file_name)
+    def getUploads():
+        conn = sqlite3.connect(CONFIG["uploads"])
+        cursor = conn.cursor()
+        cursor.execute("SELECT id, fileName, index  FROM uploads")
+        rules = cursor.fetchall()
+        json_data = [{"id": item[0], "fileName": item[1], "index": item[2]}
+                     for item in rules]
+        json_string = json.dumps(json_data, indent=2)
+        return json_string
+
+    def extract_rules(index, fileName, query: str):
+        print(index)
+        print(fileName)
+
         print("extract_rules called")
         """Extract rules from documents using LLM with better prompting"""
-        if not self.index or not self.file_name:
-            print("self.index error")
+        if not index:
+            print("index error")
             return False, "Please load documents first"
 
         # Improved prompt with strict JSON formatting instructions
@@ -139,7 +161,7 @@ class DocumentProcessor:
                 if not all(k in rule for k in ["rule_name", "rule_description", "rule_condition", "error_message"]):
                     raise ValueError("Missing required rule fields")
 
-            self._store_rules(parsed["rules"])
+            _store_rules(parsed["rules"],fileName)
             return True, parsed
 
         except Exception as e:
@@ -158,7 +180,7 @@ class DocumentProcessor:
         json_str = json_str[json_str.find('['):json_str.rfind(']')+1]
         return json_str
 
-    def _store_rules(self, rules: List[Dict]):
+    def _store_rules(rules: List[Dict], fileName):
         print("_store_rules called")
         """Store extracted rules with validation"""
         with db_lock:
@@ -172,7 +194,7 @@ class DocumentProcessor:
                          rule["rule_description"][:500],
                          rule["rule_condition"][:500],
                          rule["error_message"][:200],
-                         str(self.file_name))
+                         str(fileName))
                     )
                 except sqlite3.Error as e:
                     print(f"Database error: {e}")
