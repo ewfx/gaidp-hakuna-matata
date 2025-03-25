@@ -85,7 +85,8 @@ class DocumentProcessor:
         try:
             documents = SimpleDirectoryReader(
                 CONFIG["documents_dir"]).load_data()
-            self.index = VectorStoreIndex.from_documents(documents)
+            self.index = VectorStoreIndex.from_documents(
+                documents, show_progress=True)
             print(self.index)
             return True, f"Processed {len(documents)} documents"
         except Exception as e:
@@ -137,11 +138,14 @@ class DocumentProcessor:
 
             # Improved JSON parsing with validation
             response = response.strip()
+            # print(response)
             if response.startswith("```json"):
                 response = response[7:-3].strip()
+            if response.endswith("```"):
+                response = response[:-3].strip()
             print(response)
             parsed = json.loads(response)
-
+            print(parsed["rules"])
             # Validate structure
             if "rules" not in parsed:
                 raise ValueError("Missing 'rules' array")
@@ -151,16 +155,15 @@ class DocumentProcessor:
                     raise ValueError("Missing required rule fields")
 
             self._store_rules(parsed["rules"])
-            print(parsed["rules"])
-            return True, response
+            return True, parsed
 
         except Exception as e:
             print("Exception called")
-            return {
+            return False, str({
                 "error": f"Failed to parse rules: {str(e)}",
                 "raw_response": response,
                 "suggestion": "Try rephrasing your query to be more specific about rule types needed."
-            }
+            })
 
     def _fix_json(self, json_str: str):
         print("_fix_json called")
@@ -221,8 +224,8 @@ def upload_files():
 def extract_rules_api():
     data = request.json
     query = data.get('query', '')
-    DocumentProcessor().extract_rules(query)
-    success, result = True, "testing"  # DocumentProcessor().extract_rules(query)
+    # DocumentProcessor().extract_rules(query)
+    success, result = DocumentProcessor().extract_rules(query)
     if success:
         return jsonify({"rules": result})
     else:
