@@ -13,6 +13,7 @@ import {
 
 function RuleGeneration() {
   const [rules, setRules] = useState([]);
+  const [uniqueFileNames, setUniqueFileNames] = useState([]);
   const [selectedRule, setSelectedRule] = useState('');
   const [validationCode, setValidationCode] = useState('');
   const [isLoading, setIsLoading] = useState(false);
@@ -24,10 +25,13 @@ function RuleGeneration() {
       try {
         await new Promise(resolve => setTimeout(resolve, 1000));
         setRules([
-          { id: 1, rule_name: "Amount Validation" },
-          { id: 2, rule_name: "Date Format Check" },
-          { id: 3, rule_name: "Currency Validation" }
+          { id: 1, rule_name: "Amount Validation", fileName: "fileName1" },
+          { id: 2, rule_name: "Date Format Check", fileName: "fileName1" },
+          { id: 3, rule_name: "Currency Validation", fileName: "fileName2" }
         ]);
+        // setUniqueFileNames(
+        //   [...new Set(rules.map(rules => rules.fileName))]
+        // );
       } catch (error) {
         console.error('Error loading rules:', error);
       } finally {
@@ -73,11 +77,12 @@ function RuleGeneration() {
           <MenuItem value="" disabled>
             {isLoading ? 'Loading rules...' : 'Select a rule'}
           </MenuItem>
-          {rules.map(rule => (
-            <MenuItem key={rule.id} value={rule.rule_name}>
-              {rule.rule_name}
+          {[...new Set(rules.map(rules => rules.fileName))].map(rule => (
+            <MenuItem key={rule} value={rule}>
+              {rule}
             </MenuItem>
           ))}
+          
         </Select>
 
         <Button
