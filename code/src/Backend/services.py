@@ -16,6 +16,7 @@ load_dotenv()
 CONFIG = {
     "documents_dir": "parsed_docs",
     "rules_db": "rules.db",
+    "uploads": "uploads.db",
     "flagged_items_db": "flagged_items.db",
     "hf_api_key": os.getenv("HF_API_KEY"),
     "llm_model": "mistralai/Mistral-7B-Instruct-v0.1",
@@ -41,7 +42,7 @@ class DocumentProcessor:
     def __init__(self):
         print("__init__ called")
 
-    def process_uploaded_files(filepaths: List[str]):
+    def process_uploaded_files(self, filepaths: List[str]):
         print("process_uploaded_files called")
 
         try:
@@ -52,7 +53,7 @@ class DocumentProcessor:
             else:
                 os.makedirs(CONFIG["documents_dir"])
             index = None
-            fileName= None
+            fileName = None
             # 2. Copy new files to working directory
             for filepath in filepaths:
                 if os.path.isfile(filepath):
@@ -71,15 +72,14 @@ class DocumentProcessor:
                 cursor = conn.cursor()
                 try:
                     cursor.execute(
-                        "INSERT INTO uploads (fileName, index,) VALUES (?, ?)",
+                        "INSERT INTO uploads (fileName, idx) VALUES (?, ?)",
                         (str(fileName),
-                        str(index))
+                         str(index))
                     )
                 except sqlite3.Error as e:
                     print(f"Database error: {e}")
                 conn.commit()
                 conn.close()
-
 
             print(f"Created index with {len(documents)} documents")
             return True, {"processed_files": [os.path.basename(p) for p in filepaths]}
@@ -87,17 +87,17 @@ class DocumentProcessor:
             print(f"Error processing files: {str(e)}")
             return False, f"Processing failed: {str(e)}"
 
-    def getUploads():
+    def getUploads(self):
         conn = sqlite3.connect(CONFIG["uploads"])
         cursor = conn.cursor()
-        cursor.execute("SELECT id, fileName, index  FROM uploads")
+        cursor.execute("SELECT id, fileName, idx  FROM uploads")
         rules = cursor.fetchall()
         json_data = [{"id": item[0], "fileName": item[1], "index": item[2]}
                      for item in rules]
         json_string = json.dumps(json_data, indent=2)
         return json_string
 
-    def extract_rules(index, fileName, query: str):
+    def extract_rules(self, index, fileName, query: str):
         print(index)
         print(fileName)
 
@@ -161,7 +161,7 @@ class DocumentProcessor:
                 if not all(k in rule for k in ["rule_name", "rule_description", "rule_condition", "error_message"]):
                     raise ValueError("Missing required rule fields")
 
-            _store_rules(parsed["rules"],fileName)
+            self._store_rules(parsed["rules"], fileName)
             return True, parsed
 
         except Exception as e:
@@ -180,7 +180,7 @@ class DocumentProcessor:
         json_str = json_str[json_str.find('['):json_str.rfind(']')+1]
         return json_str
 
-    def _store_rules(rules: List[Dict], fileName):
+    def _store_rules(self, rules: List[Dict], fileName):
         print("_store_rules called")
         """Store extracted rules with validation"""
         with db_lock:

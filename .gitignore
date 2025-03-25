@@ -179,3 +179,4 @@ code/src/Backend/rules.db
 code/src/Backend/uploads
 code/src/Backend/flagged_items.db
 code/src/Backend/parsed_docs
+code/src/Backend/uploads.db

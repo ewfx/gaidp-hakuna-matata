@@ -44,7 +44,7 @@ def init_db():
     CREATE TABLE IF NOT EXISTS uploads (
         id INTEGER PRIMARY KEY AUTOINCREMENT,
         fileName TEXT,
-        index TEXT,
+        idx TEXT
     )
     """)
     conn.close()
