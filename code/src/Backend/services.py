@@ -8,12 +8,13 @@ import re
 import os
 import json
 from threading import Lock
+import shutil
 from dotenv import load_dotenv
 
 load_dotenv()
 # Configuration (same as original)
 CONFIG = {
-    "documents_dir": "uploads",
+    "documents_dir": "parsed_docs",
     "rules_db": "rules.db",
     "flagged_items_db": "flagged_items.db",
     "hf_api_key": os.getenv("HF_API_KEY"),
@@ -39,29 +40,48 @@ Settings.chunk_overlap = 20
 class DocumentProcessor:
     def __init__(self):
         self.index = Lock()
+        self.file_name = Lock()
         print("__init__ called")
 
     def process_uploaded_files(self, filepaths: List[str]):
         print("process_uploaded_files called")
 
         self.index = None
-        if not os.path.exists(CONFIG["documents_dir"]):
-            os.makedirs(CONFIG["documents_dir"])
+        self.file_name = None
         try:
+
+            if os.path.exists(CONFIG["documents_dir"]):
+                for f in os.listdir(CONFIG["documents_dir"]):
+                    os.remove(os.path.join(CONFIG["documents_dir"], f))
+            else:
+                os.makedirs(CONFIG["documents_dir"])
+
+            # 2. Copy new files to working directory
+            for filepath in filepaths:
+                if os.path.isfile(filepath):
+                    self.file_name = os.path.basename(filepath)
+                    shutil.copy2(filepath, CONFIG["documents_dir"])
+                else:
+                    print(f"Warning: File not found - {filepath}")
             documents = SimpleDirectoryReader(
                 CONFIG["documents_dir"]).load_data()
             self.index = VectorStoreIndex.from_documents(
-                documents, show_progress=True)
-            print(self.index)
-            return True, f"Processed {len(documents)} documents"
+                documents,
+                show_progress=True
+            )
+
+            print(f"Created index with {len(documents)} documents")
+            return True, {"processed_files": [os.path.basename(p) for p in filepaths]}
         except Exception as e:
-            return False, str(e)
+            print(f"Error processing files: {str(e)}")
+            return False, f"Processing failed: {str(e)}"
 
     def extract_rules(self, query: str):
         print(self.index)
+        print(self.file_name)
         print("extract_rules called")
         """Extract rules from documents using LLM with better prompting"""
-        if not self.index:
+        if not self.index or not self.file_name:
             print("self.index error")
             return False, "Please load documents first"
 
@@ -152,7 +172,7 @@ class DocumentProcessor:
                          rule["rule_description"][:500],
                          rule["rule_condition"][:500],
                          rule["error_message"][:200],
-                         str(self.index))
+                         str(self.file_name))
                     )
                 except sqlite3.Error as e:
                     print(f"Database error: {e}")
@@ -165,9 +185,9 @@ class RuleGenerator:
     def update_rule_dropdown():
         conn = sqlite3.connect(CONFIG["rules_db"])
         cursor = conn.cursor()
-        cursor.execute("SELECT id, rule_name FROM rules")
+        cursor.execute("SELECT id, rule_name, source_document  FROM rules")
         rules = cursor.fetchall()
-        json_data = [{"id": item[0], "rule_name": item[1]}
+        json_data = [{"id": item[0], "rule_name": item[1], "file_name": item[2]}
                      for item in rules]
         json_string = json.dumps(json_data, indent=2)
         return json_string
