@@ -1,7 +1,7 @@
 import sqlite3
 from huggingface_hub import InferenceClient
 from llama_index.core import Settings, SimpleDirectoryReader, VectorStoreIndex
-from llama_index.llms.huggingface import HuggingFaceInferenceAPI
+from llama_index.llms.huggingface_api import HuggingFaceInferenceAPI
 from llama_index.embeddings.huggingface import HuggingFaceEmbedding
 from typing import List, Dict
 import re
@@ -158,3 +158,16 @@ class DocumentProcessor:
                     print(f"Database error: {e}")
             conn.commit()
             conn.close()
+
+
+class RuleGenerator:
+    # (Same as original, minus Gradio-specific code)
+    def update_rule_dropdown():
+        conn = sqlite3.connect(CONFIG["rules_db"])
+        cursor = conn.cursor()
+        cursor.execute("SELECT id, rule_name FROM rules")
+        rules = cursor.fetchall()
+        json_data = [{"id": item[0], "rule_name": item[1]}
+                     for item in rules]
+        json_string = json.dumps(json_data, indent=2)
+        return json_string

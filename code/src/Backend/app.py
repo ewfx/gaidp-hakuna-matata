@@ -1,5 +1,5 @@
 from models import init_db
-from services import DocumentProcessor
+from services import DocumentProcessor, RuleGenerator
 from flask import Flask, request, jsonify
 from huggingface_hub import InferenceClient
 from werkzeug.utils import secure_filename
@@ -50,6 +50,11 @@ def extract_rules_api():
 @app.route('/api', methods=['GET'])
 def home():
     return "home success"
+
+
+@app.route('/api/rules', methods=['GET'])
+def send_rules():
+    return RuleGenerator.update_rule_dropdown()
 
 
 if __name__ == '__main__':
