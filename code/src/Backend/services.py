@@ -231,26 +231,26 @@ class Validator:
         for rule in rules:
             func_name = re.sub(r'\W+|^(?=\d)', '_', rule[0].lower())
             function_code = f'''
-            def {func_name}(df: pd.DataFrame) -> pd.DataFrame:
-                """{rule[0]}
-                Condition: {rule[2]}
-                """
-                try:
-                    # Find violating rows
-                    violations = df[~({rule[2]})].copy()
+def {func_name}(df: pd.DataFrame) -> pd.DataFrame:
+    """{rule[0]}
+    Condition: {rule[2]}
+    """
+    try:
+        # Find violating rows
+        violations = df[~({rule[2]})].copy()
 
-                    # Add validation metadata
-                    violations['__rule_name'] = '{rule[0]}'
-                    violations['__error'] = '{rule[3]}'
+        # Add validation metadata
+        violations['__rule_name'] = '{rule[0]}'
+        violations['__error'] = '{rule[3]}'
 
-                    # Return original columns plus validation info
-                    return violations[['__rule_name', '__error'] + list(df.columns)]
-                except Exception as e:
-                    # Return error if validation fails
-                    return pd.DataFrame({{
-                        '__rule_name': ['{rule[1]}'],
-                        '__error': [f'Validation error: {{str(e)}}']
-                    }})
+        # Return original columns plus validation info
+        return violations[['__rule_name', '__error'] + list(df.columns)]
+    except Exception as e:
+        # Return error if validation fails
+        return pd.DataFrame({{
+            '__rule_name': ['{rule[1]}'],
+            '__error': [f'Validation error: {{str(e)}}']
+        }})
             '''
             functions.append([rule[4], rules[0], rule[1],
                               rule[2], rule[3], function_code])
