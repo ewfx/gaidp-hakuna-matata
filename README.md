@@ -21,7 +21,7 @@ Regulatory reporting in the banking sector involves compiling vast amounts of da
 🔗 [Presentation](https://github.com/ewfx/gaidp-hakuna-matata/blob/main/artifacts/demo/Hakuna%20Matata.pdf)  
 🖼️ Screenshots:
 
-![Screenshot 1]([link-to-image](https://github.com/ewfx/gaidp-hakuna-matata/blob/main/artifacts/demo/Screenshot-1.jpg))
+![Screenshot 1](https://github.com/ewfx/gaidp-hakuna-matata/blob/main/artifacts/demo/Screenshot-1.jpg)
 
 ## 💡 Inspiration
 In a nutshell, this solution is born from frustration with manual processes + inspired by AI’s potential to turn regulations into "living" validation systems.
