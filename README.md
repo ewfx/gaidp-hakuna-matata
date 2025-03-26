@@ -18,7 +18,7 @@
 Regulatory reporting in the banking sector involves compiling vast amounts of data to meet compliance requirements. A critical aspect of this process is data profiling, which ensures that the reported data aligns with regulatory reporting instructions. Traditionally, this involves manually defining profiling rules based on the underlying data and regulatory requirements. This solution aims to automate data profiling using Generative AI (LLMs) and unsupervised machine learning techniques.
 
 ## 🎥 Demo
-🔗 [Presentation](#)  
+🔗 [Presentation](https://github.com/ewfx/gaidp-hakuna-matata/blob/main/artifacts/demo/Hakuna%20Matata.pdf)  
 🖼️ Screenshots:
 
 ![Screenshot 1](link-to-image)
