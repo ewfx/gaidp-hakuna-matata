@@ -1,4 +1,5 @@
-# 🚀 Project Name
+# 🚀 Gen-AI Powered Data Profiling and Validation System
+   TEAM: Hakuna Matata
 
 ## 📌 Table of Contents
 - [Introduction](#introduction)
@@ -14,47 +15,85 @@
 ---
 
 ## 🎯 Introduction
-A brief overview of your project and its purpose. Mention which problem statement are your attempting to solve. Keep it concise and engaging.
+Regulatory reporting in the banking sector involves compiling vast amounts of data to meet compliance requirements. A critical aspect of this process is data profiling, which ensures that the reported data aligns with regulatory reporting instructions. Traditionally, this involves manually defining profiling rules based on the underlying data and regulatory requirements. This solution aims to automate data profiling using Generative AI (LLMs) and unsupervised machine learning techniques.
 
 ## 🎥 Demo
-🔗 [Live Demo](#) (if applicable)  
-📹 [Video Demo](#) (if applicable)  
+🔗 [Presentation](#)  
 🖼️ Screenshots:
 
 ![Screenshot 1](link-to-image)
 
 ## 💡 Inspiration
-What inspired you to create this project? Describe the problem you're solving.
+In a nutshell, this solution is born from frustration with manual processes + inspired by AI’s potential to turn regulations into "living" validation systems.
 
 ## ⚙️ What It Does
-Explain the key features and functionalities of your project.
+1. **Document Processing & Rule Extraction** - 
+2. **Auto-Generated Validation Code**
+3. **Data Validation Engine**
+4. **AI-Powered Remediation**
+5. **User-Friendly Interface (React Frontend)**
+6. **Scalable Backend (Flask API)**
 
 ## 🛠️ How We Built It
-Briefly outline the technologies, frameworks, and tools used in development.
+1. Started with Research (Googled Everything!)
+- Read Hugging Face documentation to understand their free AI API
+- Looked for resources to understand the flow of project
+- Once we understood the flow, we broke into parts and started building them
+  
+2. Built the Backend First
+- Created a simple Flask server with routes.
+- Used SQLite because it's the easiest database (just one file!)
+- Tested everything with Postman before touching the frontend
+
+3. Added the AI Magic
+- Signed up for Hugging Face's free tier
+- Used their example code for Mistral-7B and modified it
+- Prompt tuning after lots of trial-and-error with the model
+
+4. Created the Frontend
+   
+5. Connected Both Parts
+- Added Axios in React to call our Flask API
+- Fixed CORS errors
+- Made sure the backend and frontend could talk to each other
 
 ## 🚧 Challenges We Faced
-Describe the major technical or non-technical challenges your team encountered.
+1. **API & Model Limitations**
+2. **Prompt Engineering & Output Accuracy**
+3. **Backend-Frontend Integration**
 
 ## 🏃 How to Run
 1. Clone the repository  
    ```sh
    git clone https://github.com/your-repo.git
    ```
-2. Install dependencies  
+2. Install dependencies (Frontend)
    ```sh
-   npm install  # or pip install -r requirements.txt (for Python)
+   cd gaidp-hakuna-matata/code/src/frontend
+   npm install
    ```
-3. Run the project  
+3. Install dependencies (Backend)
    ```sh
-   npm start  # or python app.py
+   cd gaidp-hakuna-matata/code/src/backend
+   pip install -r requirements.txt
+   ```
+4. Run the project (Frontend)  
+   ```sh
+   npm start
+   ```
+5. Run the project (Backend)
+   ```sh
+   python app.py
    ```
 
 ## 🏗️ Tech Stack
-- 🔹 Frontend: React / Vue / Angular
-- 🔹 Backend: Node.js / FastAPI / Django
-- 🔹 Database: PostgreSQL / Firebase
-- 🔹 Other: OpenAI API / Twilio / Stripe
+- 🔹 Frontend: React 
+- 🔹 Backend: Flask
+- 🔹 Database: Sqlite3
+- 🔹 Other: Hugging Face API, Minstral-7B model
 
 ## 👥 Team
-- **Your Name** - [GitHub](#) | [LinkedIn](#)
-- **Teammate 2** - [GitHub](#) | [LinkedIn](#)
+- **Teammate 1** - Neel Thakker [GitHub](#) | [LinkedIn](#)
+- **Teammate 2** - Parva Patel [GitHub](#) | [LinkedIn](#)
+- **Teammate 3** - Anshoo Rajput [GitHub](#) | [LinkedIn](#)
+- **Teammate 4** - Mona Gupta [GitHub](#) | [LinkedIn](#)
