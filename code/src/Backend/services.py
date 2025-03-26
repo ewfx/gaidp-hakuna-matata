@@ -111,7 +111,7 @@ class DocumentProcessor:
         prompt = f"""
         You are a regulatory compliance expert analyzing financial documents.
         Extract all neccessary data validation rules from given context in this SPECIFIC JSON format:
-        
+
         {{
         "rules": [
             {{
@@ -213,3 +213,48 @@ class RuleGenerator:
                      for item in rules]
         json_string = json.dumps(json_data, indent=2)
         return json_string
+
+
+class Validator:
+    def __init__(self):
+        print("__init__ called")
+
+    def generate_function(self, file_name):
+        conn = sqlite3.connect(CONFIG["rules_db"])
+        cursor = conn.cursor()
+        cursor.execute(
+            "SELECT rule_name, rule_description, rule_condition, error_message, source_document FROM rules WHERE source_document=?", (
+                file_name, ))
+        rules = cursor.fetchall()
+        functions = []
+        for rule in rules:
+            func_name = re.sub(r'\W+|^(?=\d)', '_', rule[0].lower())
+            function_code = f'''
+            def {func_name}(df: pd.DataFrame) -> pd.DataFrame:
+                """{rule[0]}
+                Condition: {rule[2]}
+                """
+                try:
+                    # Find violating rows
+                    violations = df[~({rule[2]})].copy()
+
+                    # Add validation metadata
+                    violations['__rule_name'] = '{rule[0]}'
+                    violations['__error'] = '{rule[3]}'
+
+                    # Return original columns plus validation info
+                    return violations[['__rule_name', '__error'] + list(df.columns)]
+                except Exception as e:
+                    # Return error if validation fails
+                    return pd.DataFrame({{
+                        '__rule_name': ['{rule[1]}'],
+                        '__error': [f'Validation error: {{str(e)}}']
+                    }})
+            '''
+            functions.append([rule[4], rules[0], rule[1],
+                              rule[2], rule[3], function_code])
+        # print(rules)
+        # print(functions)
+        json_data = [{"file_name": func[0], "rule_name": func[1], "rule_description": func[2], "condition": func[3], "error_message": func[4], "function_code": json.dumps(func[5], indent=2)}
+                     for func in functions]
+        return True, json_data

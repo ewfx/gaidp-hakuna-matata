@@ -1,5 +1,5 @@
 from models import init_db
-from services import DocumentProcessor, RuleGenerator
+from services import DocumentProcessor, RuleGenerator, Validator
 from flask import Flask, request, jsonify
 from flask_cors import CORS
 from huggingface_hub import InferenceClient
@@ -53,7 +53,6 @@ def extract_rules_api():
     print(idx)
     print(fileName)
 
-
     success, result = DocumentProcessor().extract_rules(idx, fileName, query)
     if success:
         return jsonify({"rules": result})
@@ -69,6 +68,18 @@ def home():
 @app.route('/api/rules', methods=['GET'])
 def send_rules():
     return RuleGenerator.update_rule_dropdown()
+
+
+@app.route('/api/validate', methods=['POST'])
+def validation_function():
+    data = request.json
+    file_name = data.get('file_name', '')
+
+    success, result = Validator().generate_function(file_name)
+    if success:
+        return jsonify({"rules": result})
+    else:
+        return jsonify({"error": result}), 500
 
 
 if __name__ == '__main__':

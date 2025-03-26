@@ -48,3 +48,16 @@ def init_db():
     )
     """)
     conn.close()
+    conn = sqlite3.connect("validation_functions.db")
+    conn.execute("""
+    CREATE TABLE IF NOT EXISTS validation_functions (
+        id INTEGER PRIMARY KEY AUTOINCREMENT,
+        fileName TEXT,
+        rule_name TEXT,
+        rule_description TEXT,
+        rule_condition TEXT,
+        error_message TEXT,
+        code TEXT
+    )
+    """)
+    conn.close()
