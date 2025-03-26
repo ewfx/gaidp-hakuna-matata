@@ -27,15 +27,35 @@ Regulatory reporting in the banking sector involves compiling vast amounts of da
 In a nutshell, this solution is born from frustration with manual processes + inspired by AI’s potential to turn regulations into "living" validation systems.
 
 ## ⚙️ What It Does
-Explain the key features and functionalities of your project.
-
-## 🛠️ How We Built It
 1. **Document Processing & Rule Extraction** - 
 2. **Auto-Generated Validation Code**
 3. **Data Validation Engine**
 4. **AI-Powered Remediation**
 5. **User-Friendly Interface (React Frontend)**
 6. **Scalable Backend (Flask API)**
+
+## 🛠️ How We Built It
+1. Started with Research (Googled Everything!)
+- Read Hugging Face documentation to understand their free AI API
+- Looked for resources to understand the flow of project
+- Once we understood the flow, we broke into parts and started building them
+  
+2. Built the Backend First
+- Created a simple Flask server with routes.
+- Used SQLite because it's the easiest database (just one file!)
+- Tested everything with Postman before touching the frontend
+
+3. Added the AI Magic
+- Signed up for Hugging Face's free tier
+- Used their example code for Mistral-7B and modified it
+- Prompt tuning after lots of trial-and-error with the model
+
+4. Created the Frontend
+   
+5. Connected Both Parts
+- Added Axios in React to call our Flask API
+- Fixed CORS errors
+- Made sure the backend and frontend could talk to each other
 
 ## 🚧 Challenges We Faced
 1. **API & Model Limitations**
