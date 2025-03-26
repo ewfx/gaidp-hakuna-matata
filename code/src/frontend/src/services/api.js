@@ -168,60 +168,77 @@
 //     remediation: `## Remediation Steps\n\n1. Fix the issue\n2. Verify the correction\n3. Document the change`
 //   };
 // };
-import axios from 'axios';
+import axios from "axios";
 
-const API_BASE_URL = 'http://localhost:5000'; // Update with your backend URL
+const API_BASE_URL = "http://127.0.0.1:5000"; // Update with your backend URL
 
 const api = axios.create({
-  baseURL: API_BASE_URL,
-  // timeout: 10000,
-  headers: {
-    'Content-Type': 'application/json',
-  },
+	baseURL: API_BASE_URL,
+	// timeout: 10000,
+	headers: {
+		"Content-Type": "application/json",
+	},
 });
 
 export const documentService = {
-  // Get list of documents
-  getDocuments: async () => {
-    try {
-      const response = await api.get('/api/upload/get');
-      return response.data;
-    } catch (error) {
-      throw new Error(error.response?.data?.message || 'Failed to fetch documents');
-    }
-  },
+	// Get list of documents
+	getDocuments: async () => {
+		try {
+			const response = await api.get("/api/upload/get");
+			return response.data;
+		} catch (error) {
+			throw new Error(
+				error.response?.data?.message || "Failed to fetch documents"
+			);
+		}
+	},
 
-  // Upload documents
-  uploadDocuments: async (files, onUploadProgress) => {
-    try {
-      const formData = new FormData();
-      Array.from(files).forEach(file => {
-        formData.append('files', file);
-      });
+	// Upload documents
+	uploadDocuments: async (files, onUploadProgress) => {
+		try {
+			const formData = new FormData();
+			Array.from(files).forEach((file) => {
+				formData.append("files", file);
+			});
 
-      const response = await api.post('/api/upload', formData, {
-        onUploadProgress,
-        headers: {
-          'Content-Type': 'multipart/form-data',
-        },
-      });
-      return response.data;
-    } catch (error) {
-      throw new Error(error.response?.data?.message || 'File upload failed');
-    }
-  },
+			const response = await api.post("/api/upload", formData, {
+				onUploadProgress,
+				headers: {
+					"Content-Type": "multipart/form-data",
+				},
+			});
+			return response.data;
+		} catch (error) {
+			throw new Error(
+				error.response?.data?.message || "File upload failed"
+			);
+		}
+	},
 
-  // Extract rules from document
-  extractRules: async (index, fileName, query) => {
-    try {
-      const response = await api.post('/api/extract-rules', {
-        index,
-        fileName,
-        query
-      });
-      return response.data;
-    } catch (error) {
-      throw new Error(error.response?.data?.message || 'Rule extraction failed');
-    }
-  },
+	// Extract rules from document
+	extractRules: async (index, fileName, query) => {
+		try {
+			const response = await api.post("/api/extract-rules", {
+				index,
+				fileName,
+				query,
+			});
+			return response.data;
+		} catch (error) {
+			throw new Error(
+				error.response?.data?.message || "Rule extraction failed"
+			);
+		}
+	},
+
+	getRules: async () => {
+		try {
+			const response = await api.get("/api/rules");
+			return response.data;
+		} catch (error) {
+			throw new Error(
+				error.response?.data?.message || "Failed to fetch rules"
+			);
+		}
+	},
 };
