@@ -10,6 +10,9 @@ import {
 	Paper,
 	Typography,
 } from "@mui/material";
+import { Prism as SyntaxHighlighter } from "react-syntax-highlighter";
+import { materialDark } from "react-syntax-highlighter/dist/esm/styles/prism";
+
 import { documentService } from "../services/api";
 
 function RuleGeneration() {
@@ -55,18 +58,29 @@ function RuleGeneration() {
 		if (!selectedRule) return;
 		setIsLoading(true);
 		try {
-			// Simulate API call
-			await new Promise((resolve) => setTimeout(resolve, 1500));
-			setValidationCode(
-				`def validate_${selectedRule
-					.toLowerCase()
-					.replace(" ", "_")}(df):
-    """Validate ${selectedRule}"""
-    errors = df[df['amount'] > 10000].copy()
-    errors['field'] = 'amount'
-    errors['error'] = 'Amount exceeds limit'
-    return errors[['row_index', 'field', 'error']]`
+			const docs = await documentService.getValidationCodeFromFileName(
+				selectedRule
 			);
+
+			console.log("Neel, Validation Code: ", JSON.stringify(docs, 4, 4));
+
+			setValidationCode(
+				docs.rules.reduce((acc, rule) => acc + rule.function_code, "")
+				// .replace(/\\/g, "")
+			);
+			// setRules(uniqueDocs);
+			// 	// Simulate API call
+			// 	await new Promise((resolve) => setTimeout(resolve, 1500));
+			// setValidationCode(
+			// 	`def validate_${selectedRule
+			// 		.toLowerCase()
+			// 		.replace(" ", "_")}(df):
+			// """Validate ${selectedRule}"""
+			// errors = df[df['amount'] > 10000].copy()
+			// errors['field'] = 'amount'
+			// errors['error'] = 'Amount exceeds limit'
+			// return errors[['row_index', 'field', 'error']]`
+			// );
 		} catch (error) {
 			setValidationCode(`# Error generating code:\n# ${error.message}`);
 		} finally {
@@ -79,8 +93,14 @@ function RuleGeneration() {
 			<CardHeader title="Rule Generation" />
 			<CardContent>
 				<Select
-					value={selectedRule}
-					onChange={(e) => setSelectedRule(e.target.value)}
+					value={selectedRule.file_name}
+					onChange={(e) =>
+						setSelectedRule(
+							rules.find(
+								(rule) => rule.file_name === e.target.value
+							)
+						)
+					}
 					fullWidth
 					displayEmpty
 					sx={{ mb: 2 }}
@@ -112,7 +132,7 @@ function RuleGeneration() {
 
 				{isLoading && <LinearProgress sx={{ mt: 2 }} />}
 
-				{validationCode && (
+				{/* {validationCode && (
 					<Paper variant="outlined" sx={{ p: 2, mt: 2 }}>
 						<Typography
 							variant="body2"
@@ -121,6 +141,15 @@ function RuleGeneration() {
 							{validationCode}
 						</Typography>
 					</Paper>
+				)} */}
+				{validationCode && (
+					<Card variant="outlined" sx={{ p: 2, mt: 2 }}>
+						<SyntaxHighlighter
+							language="python"
+							style={materialDark}>
+							{validationCode}
+						</SyntaxHighlighter>
+					</Card>
 				)}
 			</CardContent>
 		</Card>

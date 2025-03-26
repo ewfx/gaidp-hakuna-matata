@@ -241,4 +241,18 @@ export const documentService = {
 			);
 		}
 	},
+
+	getValidationCodeFromFileName: async (rule) => {
+		try {
+			const response = await api.post("/api/validate", {
+				file_name: rule.file_name,
+			});
+			return response.data;
+		} catch (error) {
+			throw new Error(
+				error.response?.data?.message ||
+					"Failed to generate validation code"
+			);
+		}
+	},
 };
