@@ -16,6 +16,7 @@ load_dotenv()
 CONFIG = {
     "documents_dir": "parsed_docs",
     "rules_db": "rules.db",
+    "validation_functions_db": "validation_functions.db",
     "uploads": "uploads.db",
     "flagged_items_db": "flagged_items.db",
     "hf_api_key": os.getenv("HF_API_KEY"),
@@ -255,6 +256,27 @@ class Validator:
                               rule[2], rule[3], function_code])
         # print(rules)
         # print(functions)
-        json_data = [{"file_name": func[0], "rule_name": func[1], "rule_description": func[2], "condition": func[3], "error_message": func[4], "function_code": json.dumps(func[5], indent=2)}
+        json_data = [{"file_name": func[0], "rule_name": func[1], "rule_description": func[2], "condition": func[3], "error_message": func[4], "function_code": func[5]}
                      for func in functions]
+
+        with db_lock:
+            conn = sqlite3.connect(CONFIG["validation_functions_db"])
+            cursor = conn.cursor()
+            for func in functions:
+                try:
+                    # print(type(func[2]), type(func[3]),
+                    #   type(func[4]), type(func[4]))
+                    cursor.execute(
+                        "INSERT INTO validation_functions (fileName, rule_name, rule_description, rule_condition, error_message, code) VALUES (?, ?, ?, ?, ?, ?)",
+                        (func[0],
+                         str(func[1]),
+                         func[2],
+                         func[3],
+                         func[4],
+                         str(func[5]))
+                    )
+                except sqlite3.Error as e:
+                    print(f"Database error: {e}")
+            conn.commit()
+            conn.close()
         return True, json_data
