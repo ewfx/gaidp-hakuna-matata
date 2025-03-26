@@ -1,6 +1,7 @@
 from models import init_db
 from services import DocumentProcessor, RuleGenerator
 from flask import Flask, request, jsonify
+from flask_cors import CORS
 from huggingface_hub import InferenceClient
 from werkzeug.utils import secure_filename
 import uuid
@@ -9,6 +10,7 @@ import os
 app = Flask(__name__)
 app.config['UPLOAD_FOLDER'] = 'uploads'
 app.config['ALLOWED_EXTENSIONS'] = {'pdf', 'docx', 'txt'}
+CORS(app)
 
 
 def allowed_file(filename):
@@ -47,6 +49,10 @@ def extract_rules_api():
     query = data.get('query', '')
     idx = data.get('index', '')
     fileName = data.get('fileName', '')
+    print(query)
+    print(idx)
+    print(fileName)
+
 
     success, result = DocumentProcessor().extract_rules(idx, fileName, query)
     if success:
